@@ -218,7 +218,7 @@ No selling. No manual borrow. No taxable event. **This is what spending Bitcoin 
 
 | Resource | URL |
 |----------|-----|
-| GitHub | `github.com/mzf11125/collat-mezo` |
+| GitHub | `https://github.com/collat-labs/collat` |
 | Deployed (Testnet) | Mezo Matsnet (Chain ID 31611) |
 | MUSD Token | `0x118917a40FAF1CD7a13dB0Ef56C86De7973Ac503` |
 

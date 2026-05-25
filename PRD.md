@@ -421,7 +421,7 @@ MUSD becomes a spendable currency. Collat turns a stablecoin into a payment rail
 ### B. References
 
 - Pitch Deck: `Collat_Pitch_Deck.pptx`
-- Source Code: `github.com/mzf11125/collat-mezo`
+- Source Code: `https://github.com/collat-labs/collat`
 - Mezo: `mezo.org`
 - Spectrum Nodes: `spectrum-nodes.com`
 - Validation Cloud: `validationcloud.io/mezo`
