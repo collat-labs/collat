@@ -32,8 +32,7 @@ const productLinks = [
 ]
 
 const resourceLinks = [
-  { label: 'Documentation', href: 'https://docs.mezo.org' },
-  { label: 'GitHub', href: 'https://github.com/mezo-org' },
+  { label: 'GitHub', href: 'https://github.com/mzf11125/collat-mezo' },
   { label: 'Mezo Explorer', href: 'https://explorer.test.mezo.org' },
 ]
 
