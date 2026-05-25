@@ -1,0 +1,29 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+script = "script"
+test = "test"
+solc = "0.8.24"
+evm_version = "london"
+ffi = true
+fs_permissions = [{ access = "read-write", path = "./broadcast" }]
+
+remappings = [
+    "@openzeppelin/=lib/openzeppelin-contracts/",
+    "forge-std/=lib/forge-std/src/"
+]
+
+[rpc_endpoints]
+matsnet = "https://rpc.test.mezo.org"
+
+[etherscan]
+matsnet = { key = "empty", url = "https://api.explorer.test.mezo.org/api" }
+
+# Mezo testnet config
+[profile.matsnet]
+evm_version = "london"
+
+# Mezo mainnet config  
+[profile.mainnet]
+evm_version = "london"
