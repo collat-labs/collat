@@ -1,25 +1,22 @@
 import { ArrowUpRight } from 'lucide-react'
 import AnimatedSection from './AnimatedSection'
 
-function BtcIcon({ size = 80 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" className="opacity-[0.06]">
-      <circle cx="12" cy="12" r="11" fill="currentColor" className="text-white">
-        <animate attributeName="opacity" values="0.5;1;0.5" dur="5s" repeatCount="indefinite" />
-      </circle>
-      <text x="12" y="17" textAnchor="middle" fill="#000" fontSize="11" fontWeight="bold" fontFamily="serif">B</text>
-    </svg>
-  )
-}
+const SERVICE_VIDEO_1 =
+  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4'
+
+const SERVICE_VIDEO_2 =
+  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260324_151826_c7218672-6e92-402c-9e45-f1e0f454bdc4.mp4'
 
 const cards = [
   {
+    video: SERVICE_VIDEO_1,
     tag: 'Deposit',
     title: 'BTC Collateral Vault',
     description:
       'Deposit Bitcoin into your non-custodial vault on Mezo. Your BTC stays on-chain — always yours, always verifiable. Earn yield while you hold.',
   },
   {
+    video: SERVICE_VIDEO_2,
     tag: 'Spend',
     title: 'Auto-Borrow at Checkout',
     description:
@@ -62,23 +59,16 @@ export default function ServicesSection() {
               }}
             >
               <div className="liquid-glass rounded-3xl overflow-hidden group cursor-pointer">
-                <div className="aspect-video overflow-hidden relative bg-gradient-to-br from-[#0a0000] via-black to-[#000a0a] flex items-center justify-center">
-                  <svg className="absolute inset-0 w-full h-full opacity-[0.03]" viewBox="0 0 600 338" preserveAspectRatio="xMidYMid slice">
-                    {Array.from({ length: 30 }).map((_, j) => (
-                      <line
-                        key={j}
-                        x1={Math.random() * 600}
-                        y1={Math.random() * 338}
-                        x2={Math.random() * 600}
-                        y2={Math.random() * 338}
-                        stroke="white"
-                        strokeWidth="0.3"
-                      >
-                        <animate attributeName="opacity" values="0.2;0.6;0.2" dur={`${2 + j % 3}s`} repeatCount="indefinite" begin={`${j * 0.1}s`} />
-                      </line>
-                    ))}
-                  </svg>
-                  <BtcIcon size={120} />
+                <div className="aspect-video overflow-hidden">
+                  <video
+                    src={card.video}
+                    muted
+                    autoPlay
+                    loop
+                    playsInline
+                    preload="auto"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
                 </div>
 

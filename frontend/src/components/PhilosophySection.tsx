@@ -1,70 +1,7 @@
 import AnimatedSection from './AnimatedSection'
 
-function VaultShield() {
-  return (
-    <svg
-      className="w-full h-full"
-      viewBox="0 0 400 300"
-      preserveAspectRatio="xMidYMid slice"
-    >
-      <defs>
-        <linearGradient id="vaultGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#E53935" stopOpacity="0.25" />
-          <stop offset="100%" stopColor="#E53935" stopOpacity="0.05" />
-        </linearGradient>
-        <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#E53935" stopOpacity="0.4" />
-          <stop offset="100%" stopColor="#E53935" stopOpacity="0.1" />
-        </linearGradient>
-      </defs>
-
-      <rect x="0" y="0" width="400" height="300" rx="24" fill="url(#vaultGrad)" stroke="#E53935" strokeWidth="0.5" strokeOpacity="0.2" />
-
-      <g transform="translate(200,130)">
-        <path d="M-50,-60 L50,-60 L70,-30 L70,30 L50,60 L-50,60 L-70,30 L-70,-30 Z" fill="none" stroke="url(#lineGrad)" strokeWidth="1.2">
-          <animate attributeName="strokeOpacity" values="0.3;0.6;0.3" dur="3s" repeatCount="indefinite" />
-        </path>
-        <circle cx="0" cy="0" r="15" fill="none" stroke="#E53935" strokeWidth="1" opacity="0.4">
-          <animate attributeName="r" values="15;18;15" dur="2s" repeatCount="indefinite" />
-          <animate attributeName="opacity" values="0.3;0.5;0.3" dur="2s" repeatCount="indefinite" />
-        </circle>
-        <text x="0" y="90" textAnchor="middle" fill="#E53935" opacity="0.15" fontSize="14" fontFamily="monospace">
-          tBTC
-        </text>
-      </g>
-
-      {Array.from({ length: 8 }).map((_, i) => {
-        const angle = (Math.PI * 2 * i) / 8
-        const startR = 50
-        const endR = 100
-        return (
-          <line
-            key={i}
-            x1={200 + startR * Math.cos(angle)}
-            y1={130 + startR * Math.sin(angle)}
-            x2={200 + endR * Math.cos(angle)}
-            y2={130 + endR * Math.sin(angle)}
-            stroke="#E53935"
-            strokeWidth="0.4"
-            opacity="0.15"
-          >
-            <animate attributeName="opacity" values="0.1;0.25;0.1" dur={`${2 + (i % 3)}s`} repeatCount="indefinite" begin={`${i * 0.2}s`} />
-          </line>
-        )
-      })}
-
-      {Array.from({ length: 6 }).map((_, i) => {
-        const x = 50 + Math.random() * 300
-        const y = 20 + Math.random() * 260
-        return (
-          <circle key={i} cx={x} cy={y} r="1.5" fill="#E53935" opacity="0.3">
-            <animate attributeName="opacity" values="0.1;0.5;0.1" dur={`${1 + (i % 2) * 1.5}s`} repeatCount="indefinite" begin={`${i * 0.3}s`} />
-          </circle>
-        )
-      })}
-    </svg>
-  )
-}
+const PHILOSOPHY_VIDEO =
+  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260307_083826_e938b29f-a43a-41ec-a153-3d4730578ab8.mp4'
 
 export default function PhilosophySection() {
   return (
@@ -85,8 +22,16 @@ export default function PhilosophySection() {
               visible: { opacity: 1, x: 0, transition: { duration: 0.8 } },
             }}
           >
-            <div className="rounded-3xl overflow-hidden aspect-[4/3] bg-gradient-to-br from-[#0a0000] via-black to-[#000a0a] border border-white/[0.04]">
-              <VaultShield />
+            <div className="rounded-3xl overflow-hidden aspect-[4/3]">
+              <video
+                src={PHILOSOPHY_VIDEO}
+                muted
+                autoPlay
+                loop
+                playsInline
+                preload="auto"
+                className="w-full h-full object-cover"
+              />
             </div>
           </AnimatedSection>
 
