@@ -11,6 +11,9 @@ No selling your Bitcoin. Your BTC stays on-chain in your vault.
 [![Test](https://img.shields.io/badge/tests-26%2F26%20passing-brightgreen)]()
 [![Solidity](https://img.shields.io/badge/solidity-0.8.24-blue)]()
 [![Foundry](https://img.shields.io/badge/built%20with-foundry-orange)]()
+[![React](https://img.shields.io/badge/react-19-61DAFB)]()
+[![TypeScript](https://img.shields.io/badge/typescript-5.7-3178C6)]()
+[![Vite](https://img.shields.io/badge/vite-8-646CFF)]()
 [![License](https://img.shields.io/badge/license-GPL--3.0-green)]()
 
 ## How It Works
@@ -152,12 +155,34 @@ cd frontend
 # Install dependencies
 npm install
 
-# Start dev server
+# Start dev server (http://localhost:5173)
 npm run dev
 
 # Build for production
 npm run build
 ```
+
+#### Landing Page (`/`)
+- Full-viewport hero with video background + smooth crossfade loop
+- Liquid-glass UI across all sections (backdrop-blur, gradient borders)
+- Animated SVG backgrounds — Bitcoin node mesh, hex grid, vault shield
+- Scroll-triggered framer-motion animations (useInView)
+- Instrument Serif display typeface, Mezo-inspired red palette (#E53935)
+- 5 sections: Hero, About, How it Works, Security × Freedom, Core Features
+- Comprehensive footer with product links, docs, legal, social icons
+
+#### Dashboard (`/dashboard`)
+- **RainbowKit wallet integration** — connect MetaMask, WalletConnect, etc.
+- **Live on-chain data** via viem — reads CollatVault contract on Mezo matsnet
+- Protocol stats: TVL, MUSD borrowed, Max LTV, interest rate
+- **Deposit BTC panel** — balance display, approve + deposit with wagmi writeContract
+- **Position table** — BTC deposited, MUSD borrowed, LTV%, health factor
+- **Virtual card preview** — mock Collat Card with spending limits
+- Contract addresses and protocol parameters displayed
+- Graceful fallback to defaults when contracts aren't deployed
+
+#### Stack
+React 19 · TypeScript · Vite · Tailwind CSS 4 · framer-motion · wagmi · RainbowKit · viem · lucide-react
 
 ## Deployed Addresses
 
@@ -212,25 +237,38 @@ card issuing API (Stripe Issuing, Marqeta, Lithic) with an off-chain auth relay.
 
 ```
 collat-mezo/
-├── solidity/              # Foundry project
-│   ├── src/               # Solidity contracts
+├── solidity/                  # Foundry project
+│   ├── src/                   # Solidity contracts
 │   │   ├── CollatVault.sol
 │   │   ├── PriceFeed.sol
 │   │   ├── MockBTCToken.sol
-│   │   └── interfaces/
-│   ├── test/              # Foundry tests
-│   │   └── CollatVault.t.sol
-│   ├── script/            # Deploy scripts
-│   │   └── DeployCollat.s.sol
+│   │   └── interfaces/IERC20.sol
+│   ├── test/CollatVault.t.sol # 26 tests
+│   ├── script/DeployCollat.s.sol
 │   └── foundry.toml
-├── frontend/              # React + Vite landing page
+├── frontend/                  # React + Vite + Tailwind
 │   ├── src/
-│   │   ├── components/
+│   │   ├── components/        # 11 components
+│   │   │   ├── HeroSection.tsx
+│   │   │   ├── AboutSection.tsx
+│   │   │   ├── FeaturedVideoSection.tsx (How it Works)
+│   │   │   ├── PhilosophySection.tsx
+│   │   │   ├── ServicesSection.tsx
+│   │   │   ├── DepositPanel.tsx
+│   │   │   ├── CardPreview.tsx
+│   │   │   ├── PositionTable.tsx
+│   │   │   ├── Navbar.tsx
+│   │   │   ├── FooterSection.tsx
+│   │   │   └── AnimatedSection.tsx
+│   │   ├── pages/
+│   │   │   ├── Landing.tsx
+│   │   │   └── Dashboard.tsx
+│   │   ├── hooks/useCollatData.ts
+│   │   ├── lib/               # chain.ts, contracts.ts, wagmi.ts
 │   │   ├── App.tsx
 │   │   └── index.css
 │   └── vite.config.ts
-├── docs/
-│   └── CREDIT_CARD_ARCHITECTURE.md
+├── docs/CREDIT_CARD_ARCHITECTURE.md
 ├── PRD.md
 ├── COMPETITOR_ANALYSIS.md
 └── README.md
