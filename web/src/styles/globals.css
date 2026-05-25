@@ -1,0 +1,219 @@
+/* Base — imports after Bootstrap SCSS so these take precedence */
+@import "./tokens.css";
+
+/* Fonts — loaded via <link> in index.html; fallback chain in tokens */
+body {
+  font-family: var(--font-sans);
+  background-color: var(--c-bg);
+  color: var(--c-text);
+  line-height: var(--lh-body);
+  font-size: var(--fs-body);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus ring — visible, on-brand */
+:focus-visible {
+  outline: 2px solid var(--c-red-500);
+  outline-offset: 2px;
+  border-radius: var(--r-1);
+}
+
+/* Tabular numerals for all money-related elements */
+.tabular-nums,
+[class*="money"],
+[class*="ltv"],
+[class*="metric"] {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Scrollbar — dark & minimal */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--c-ink-600); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--c-gray-500); }
+
+/* Typography resets for hero surfaces — Bootstrap is the grid, not the style */
+h1, .h1 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h1);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.02em;
+}
+
+h2, .h2 {
+  font-family: var(--font-sans);
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+h3, .h3 {
+  font-size: var(--fs-h3);
+  font-weight: 600;
+}
+
+/* Eyebrow — tracked caps treatment */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--c-red-500);
+}
+
+/* Hero number — oversized mono data display */
+.mono-hero {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-hero);
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.mono-data {
+  font-family: var(--font-mono);
+  font-size: var(--fs-mono-data);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Surface card */
+.surface {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-3);
+}
+
+.surface-2 {
+  background: var(--c-surface-2);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-3);
+}
+
+/* Text utilities */
+.text-mute { color: var(--c-text-mute) !important; }
+.text-primary { color: var(--c-primary) !important; }
+.text-success { color: var(--c-success) !important; }
+.text-warning { color: var(--c-warning) !important; }
+.text-danger  { color: var(--c-danger)  !important; }
+
+/* Page transition wrapper */
+.page-transition {
+  animation: pageEnter var(--d-base) var(--e-out) both;
+}
+
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Skeleton shimmer */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--c-surface) 25%,
+    var(--c-surface-2) 50%,
+    var(--c-surface) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: var(--r-2);
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Dark-theme adjustments that Bootstrap misses */
+[data-theme="dark"] body {
+  background-color: var(--c-ink-900);
+  color: var(--c-white);
+}
+
+[data-theme="dark"] .surface {
+  background: var(--c-ink-800);
+  border-color: var(--c-ink-600);
+}
+
+[data-theme="dark"] .surface-2 {
+  background: var(--c-ink-700);
+  border-color: var(--c-ink-600);
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+  background-color: var(--c-ink-700);
+  color: var(--c-white);
+  border-color: var(--c-ink-600);
+}
+
+[data-theme="dark"] .modal-content {
+  background-color: var(--c-ink-800);
+  border-color: var(--c-ink-600);
+  color: var(--c-white);
+}
+
+[data-theme="dark"] .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+/* Mobile safe-area padding for fixed bottom nav */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Reserve room for the fixed mobile tab bar (lg- only) */
+.main-with-tabbar {
+  padding-bottom: 0;
+}
+@media (max-width: 767.98px) {
+  .main-with-tabbar {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+  }
+  /* Pull footer above the tab bar on mobile */
+  footer {
+    margin-bottom: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* React-bootstrap Modal — full-screen sheet on mobile that swipes up */
+@media (max-width: 575.98px) {
+  .modal-dialog {
+    margin: 0;
+    max-width: 100%;
+    min-height: 100dvh;
+  }
+  .modal-content {
+    min-height: 100dvh;
+    border-radius: 0;
+  }
+}
+
+/* Avoid horizontal scroll on small screens */
+html, body {
+  overflow-x: hidden;
+}
+
+/* "Ask Collat" floating button + dock — desktop sits in corner, mobile clears the tab bar */
+.ask-collat-fab {
+  bottom: var(--s-5);
+}
+.ask-collat-dock {
+  bottom: calc(var(--s-5) + 60px);
+}
+@media (max-width: 767.98px) {
+  .ask-collat-fab {
+    bottom: calc(64px + env(safe-area-inset-bottom, 0px) + var(--s-3));
+  }
+  .ask-collat-dock {
+    bottom: calc(64px + env(safe-area-inset-bottom, 0px) + var(--s-3) + 60px);
+  }
+}
+
+/* Range slider — on-brand */
+input[type="range"] {
+  accent-color: var(--c-red-500);
+}

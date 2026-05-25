@@ -1,0 +1,120 @@
+:root {
+  /* Palette — only these five families */
+  --c-red-50:  #fdecee;
+  --c-red-300: #f06b78;
+  --c-red-500: #e11d2e;
+  --c-red-600: #b3121f;
+  --c-red-700: #870a14;
+
+  --c-black:   #0a0a0a;
+  --c-ink-900: #111213;
+  --c-ink-800: #1a1b1d;
+  --c-ink-700: #26282b;
+  --c-ink-600: #383b3f;
+
+  --c-white:   #ffffff;
+  --c-paper:   #fafaf7;
+  --c-paper-2: #f1f1ec;
+
+  --c-gray-100: #ececea;
+  --c-gray-300: #c8c9c6;
+  --c-gray-500: #8a8c8a;
+  --c-gray-700: #4a4c4d;
+  --c-gray-900: #1f2022;
+
+  /* Silver — the Card identity */
+  --c-silver-100: #efeff1;
+  --c-silver-300: #c8ccd2;
+  --c-silver-500: #a8aeb6;
+  --c-silver-700: #6a6f76;
+  --grad-card-silver: linear-gradient(
+    135deg,
+    #d6d8dc 0%, #f3f4f6 25%, #aeb3ba 55%, #e7e9ec 80%, #8b9099 100%
+  );
+
+  /* Semantic — LIGHT theme is the default */
+  --c-bg:        var(--c-paper);
+  --c-surface:   var(--c-white);
+  --c-surface-2: var(--c-paper-2);
+  --c-border:    var(--c-gray-300);
+  --c-text:      var(--c-black);
+  --c-text-mute: var(--c-gray-700);
+  --c-primary:   var(--c-red-500);
+  --c-danger:    var(--c-red-500);
+  --c-success:   #4f8a52;        /* darker for contrast on white */
+  --c-warning:   #b8881e;        /* darker for contrast on white */
+
+  /* Fixed-on-dark tokens — for sections that always sit on a black background
+     (Collat Card hero, landing card section) regardless of theme */
+  --c-on-dark:      var(--c-white);
+  --c-on-dark-mute: var(--c-gray-300);
+
+  /* Typography */
+  --font-display: "Fraunces", "Times New Roman", serif;
+  --font-sans:    "Geist", "Helvetica Neue", system-ui, sans-serif;
+  --font-mono:    "Geist Mono", "JetBrains Mono", ui-monospace, monospace;
+
+  --fs-hero:       clamp(3.25rem, 7vw, 6.5rem);
+  --fs-h1:         clamp(2.0rem, 3.5vw, 3.0rem);
+  --fs-h2:         clamp(1.5rem, 2.5vw, 2.0rem);
+  --fs-h3:         1.25rem;
+  --fs-body:       1rem;
+  --fs-sm:         0.875rem;
+  --fs-mono-data:  1.125rem;
+  --fs-mono-hero:  clamp(2.5rem, 5vw, 4rem);
+
+  --lh-tight: 1.05;
+  --lh-body:  1.55;
+
+  /* Spacing — strict 4px scale */
+  --s-1: 4px;  --s-2: 8px;   --s-3: 12px;  --s-4: 16px;
+  --s-5: 24px; --s-6: 32px;  --s-7: 48px;  --s-8: 64px;
+  --s-9: 96px; --s-10: 128px;
+
+  /* Radius */
+  --r-1: 2px;  --r-2: 6px;  --r-3: 12px;  --r-4: 20px;
+  --r-card: 16px;
+
+  /* Shadows — restrained, more visible on white */
+  --sh-1:    0 1px 2px rgba(10,10,10,.06);
+  --sh-2:    0 4px 18px rgba(10,10,10,.08);
+  --sh-card: 0 18px 50px -12px rgba(10,10,10,.25), 0 2px 6px rgba(10,10,10,.1);
+
+  /* Motion */
+  --d-fast:   120ms;
+  --d-base:   220ms;
+  --d-slow:   380ms;
+  --e-out:    cubic-bezier(.2, .8, .2, 1);
+  --e-in:     cubic-bezier(.5, 0, .9, .3);
+  --e-spring: linear(0, .2, .5, .85, 1.02, .99, 1);
+
+  /* Z scale — toast above modals so tx confirmations stay visible while modals close */
+  --z-nav:     40;
+  --z-modal:   1055;   /* matches Bootstrap default */
+  --z-toast:   1100;
+  --z-tooltip: 1200;
+}
+
+/* Dark theme is now an opt-in override */
+[data-theme="dark"] {
+  --c-bg:        var(--c-ink-900);
+  --c-surface:   var(--c-ink-800);
+  --c-surface-2: var(--c-ink-700);
+  --c-border:    var(--c-ink-600);
+  --c-text:      var(--c-white);
+  --c-text-mute: var(--c-gray-300);
+  --c-success:   #6ea870;
+  --c-warning:   #d4a73a;
+
+  --sh-1:    0 1px 0 rgba(0, 0, 0, .4);
+  --sh-2:    0 4px 18px rgba(0, 0, 0, .35);
+  --sh-card: 0 18px 50px -12px rgba(0, 0, 0, .65), 0 2px 6px rgba(0, 0, 0, .4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --d-fast: 0ms;
+    --d-base: 0ms;
+    --d-slow: 0ms;
+  }
+}
