@@ -1,0 +1,43 @@
+{
+  "skill_name": "dlai-transcript-fetcher",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "把 DeepLearning.AI 上 SGLang 这门课的 transcript 下载下来，存成 markdown 文件。课程链接是 https://learn.deeplearning.ai/courses/efficient-inference-with-sglang-text-and-image-generation",
+      "expected_output": "生成 7 个 lesson 的 markdown 文件（introduction, overview of inference, llm inference fundamentals, advanced optimization, sglang diffusion, the future of inference, conclusion），每个文件包含干净的英文 transcript，无 WebVTT 时间戳标记",
+      "files": [],
+      "expectations": [
+        "生成 7 个 .md 文件在 transcripts/ 子目录下",
+        "文件名格式为 sglang-01-introduction.md 这样的序号命名",
+        "每个 .md 文件只包含干净的 transcript 文本，不包含 WebVTT 标签或时间戳",
+        "L6 (quiz) 没有 transcript 是正常的，无需报错",
+        "Conclusion lesson 单独处理，使用 Conclusion 路径而非 L6"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "下载 https://learn.deeplearning.ai/courses/efficient-inference-with-sglang-text-and-image-generation 的全部 lesson transcripts，保存到当前目录的 transcripts 文件夹",
+      "expected_output": "transcripts 文件夹中包含所有可下载 lesson 的 markdown 文件，命名规范，有元数据注释",
+      "files": [],
+      "expectations": [
+        "创建 transcripts/ 子目录",
+        "每个 lesson 生成一个独立的 .md 文件",
+        "文件头部包含 title 和 source 信息",
+        "正文为干净的 transcript 文本（无时间戳、无 WebVTT 标记）",
+        "跳过无 transcript 的 quiz lesson"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "我想把这个课程的所有字幕都下载下来，存到当前目录下 https://learn.deeplearning.ai/courses/chatgpt-prompt-engineering-for-developers",
+      "expected_output": "生成 prompt engineering 课程所有 lesson 的 transcript markdown 文件",
+      "files": [],
+      "expectations": [
+        "能够处理不同的 course slug",
+        "自动发现该课程的所有 lesson VTT URL",
+        "每个 lesson 生成独立的 .md 文件",
+        "文件名反映 lesson 名称（可能需要从 URL slug 提取）"
+      ]
+    }
+  ]
+}

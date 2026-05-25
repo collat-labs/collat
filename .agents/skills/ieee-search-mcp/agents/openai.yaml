@@ -1,0 +1,4 @@
+interface:
+  display_name: "IEEE Search via Library MCP"
+  short_description: "Search IEEE Xplore through university proxy access and keep institutional login state"
+  default_prompt: "Use my university library proxy session to search IEEE Xplore (keyword/advanced/journal), apply year filters, and optionally keep only CCF-A venues in a result table."

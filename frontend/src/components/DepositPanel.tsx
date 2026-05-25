@@ -163,6 +163,15 @@ export default function DepositPanel() {
           Contract not yet deployed to Mezo testnet
         </p>
       )}
+
+      <a
+        href="https://faucet.test.mezo.org"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="block mt-3 text-center text-xs text-red-500/60 hover:text-red-400 transition-colors"
+      >
+        Get testnet BTC from the Mezo Faucet →
+      </a>
     </div>
   )
 }

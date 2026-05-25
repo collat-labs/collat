@@ -57,6 +57,15 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <a
+              href="https://faucet.test.mezo.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:flex items-center gap-1.5 text-xs text-red-500 hover:text-red-400 font-medium transition-colors"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+              Faucet
+            </a>
             <span className="hidden sm:inline text-xs text-white/30 font-mono bg-white/[0.02] px-3 py-1.5 rounded-full border border-white/[0.04]">
               Mezo Matsnet
             </span>

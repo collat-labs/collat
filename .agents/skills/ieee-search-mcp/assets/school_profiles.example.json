@@ -1,0 +1,16 @@
+{
+  "default_profile": "wust",
+  "profiles": {
+    "wust": {
+      "display_name": "Wuhan University of Science and Technology",
+      "library_home": "https://wust.metaersp.cn/personalIndex",
+      "proxy_ieee_home": "https://metaersp-2.wust.edu.cn/s/org/ieee/ieeexplore/G.https/Xplore/home.jsp",
+      "known_database_detail_url": "https://wust.metaersp.cn/databaseDetail?databaseNum=DB_c7852febb625f8cf7e9e0a5f21bb074b",
+      "db_keyword_candidates": ["IEL", "IEEE", "IEEE Xplore"],
+      "notes": [
+        "WUST library often indexes IEEE as IEL.",
+        "Prefer staying in proxy session instead of opening public ieeexplore.ieee.org directly."
+      ]
+    }
+  }
+}

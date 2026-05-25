@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 const navLinks = [
   { label: 'How it Works', href: '#how-it-works' },
   { label: 'Features', href: '#features' },
-  { label: 'Docs', href: '#docs' },
+  { label: 'Docs', href: 'https://docs.mezo.org', external: true },
 ]
 
 export default function Navbar() {
@@ -21,6 +21,8 @@ export default function Navbar() {
               <a
                 key={link.label}
                 href={link.href}
+                target={link.external ? '_blank' : undefined}
+                rel={link.external ? 'noopener noreferrer' : undefined}
                 className="text-white/80 hover:text-white text-sm font-medium transition-colors duration-200"
               >
                 {link.label}

@@ -26,7 +26,7 @@ const cards = [
 
 export default function ServicesSection() {
   return (
-    <section className="bg-black py-28 md:py-40 px-6 overflow-hidden relative">
+    <section id="features" className="bg-black py-28 md:py-40 px-6 overflow-hidden relative">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(229,57,53,0.04)_0%,_transparent_60%)]" />
 
       <div className="relative max-w-6xl mx-auto">

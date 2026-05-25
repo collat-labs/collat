@@ -1,0 +1,4 @@
+interface:
+  display_name: "CCF Rank Lookup"
+  short_description: "Look up CCF conference and journal rankings by year"
+  default_prompt: "Find CCF rank and category for conference/journal venues."
