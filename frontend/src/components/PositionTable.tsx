@@ -117,7 +117,7 @@ export default function PositionTable() {
 
           {!isDeployed && (
             <p className="text-amber-400/60 text-xs text-center mt-2">
-              Contract not yet deployed — showing mock data
+              Contract not yet deployed. Showing mock data.
             </p>
           )}
         </div>

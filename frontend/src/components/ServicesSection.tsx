@@ -13,7 +13,7 @@ const cards = [
     tag: 'Deposit',
     title: 'BTC Collateral Vault',
     description:
-      'Deposit Bitcoin into your non-custodial vault on Mezo. Your BTC stays on-chain — always yours, always verifiable. Earn yield while you hold.',
+      'Deposit Bitcoin into your non-custodial vault on Mezo. Your BTC stays on-chain, always yours and always verifiable. Earn yield while you hold.',
   },
   {
     video: SERVICE_VIDEO_2,

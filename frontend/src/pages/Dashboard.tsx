@@ -88,7 +88,7 @@ export default function Dashboard() {
             Dashboard
           </h1>
           <p className="text-white/40 text-sm">
-            {isDeployed ? 'Live on-chain data from CollatVault' : 'Protocol overview — deploy contracts to Mezo for live data'}
+            {isDeployed ? 'Live on-chain data from CollatVault' : 'Protocol overview. Deploy contracts to Mezo for live data.'}
           </p>
         </motion.div>
 

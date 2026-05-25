@@ -102,7 +102,7 @@ export default function HeroSection() {
 
         <p className="mt-8 text-white/50 text-sm md:text-base leading-relaxed max-w-lg px-4">
           Deposit BTC once. Spend MUSD anywhere. Collat auto-borrows at checkout
-          so you never sell your Bitcoin — just use it.
+          so you never sell your Bitcoin. Just use it.
         </p>
 
         <div className="mt-8 flex flex-col sm:flex-row items-center gap-4">

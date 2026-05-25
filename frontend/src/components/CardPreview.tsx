@@ -71,7 +71,7 @@ export default function CardPreview() {
         disabled
         className="w-full mt-4 bg-white/[0.03] text-white/20 rounded-xl py-2.5 text-xs font-medium border border-white/[0.04] cursor-not-allowed"
       >
-        Order Physical Card — Coming Soon
+        Order Physical Card. Coming Soon
       </button>
     </motion.div>
   )

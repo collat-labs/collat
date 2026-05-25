@@ -130,7 +130,7 @@ export default function FooterSection() {
             ))}
           </div>
           <p className="text-white/20 text-xs">
-            &copy; {new Date().getFullYear()} Collat. Built on Mezo.
+            © {new Date().getFullYear()} Collat. Built on Mezo.
           </p>
         </div>
       </div>

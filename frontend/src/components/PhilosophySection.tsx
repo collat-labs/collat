@@ -48,7 +48,7 @@ export default function PhilosophySection() {
                 </p>
                 <p className="text-white/70 text-base md:text-lg leading-relaxed">
                   Your Bitcoin stays in your vault, always on-chain, always yours. Collat is
-                  built on Mezo — a Bitcoin layer 2 — so your collateral never leaves the
+                  built on Mezo, a Bitcoin layer 2, so your collateral never leaves the
                   Bitcoin ecosystem. No wrapped tokens, no bridges, no custodians.
                 </p>
               </div>
