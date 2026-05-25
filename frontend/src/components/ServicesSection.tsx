@@ -2,10 +2,10 @@ import { ArrowUpRight } from 'lucide-react'
 import AnimatedSection from './AnimatedSection'
 
 const SERVICE_VIDEO_1 =
-  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260314_131748_f2ca2a28-fed7-44c8-b9a9-bd9acdd5ec31.mp4'
+  'https://assets.mixkit.co/videos/46992/46992-720.mp4'
 
 const SERVICE_VIDEO_2 =
-  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260324_151826_c7218672-6e92-402c-9e45-f1e0f454bdc4.mp4'
+  'https://assets.mixkit.co/videos/45237/45237-720.mp4'
 
 const cards = [
   {
