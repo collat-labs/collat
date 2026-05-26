@@ -34,10 +34,10 @@ const riskColors: Record<string, string> = {
 export default function YieldStrategies() {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.9 }}
-      className="liquid-glass rounded-2xl p-6 lg:col-span-3"
+      transition={{ duration: 0.4 }}
+      className="liquid-glass rounded-2xl p-6"
     >
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">

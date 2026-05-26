@@ -46,10 +46,10 @@ export default function SDKSection() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.7 }}
-      className="liquid-glass rounded-2xl p-6 lg:col-span-2"
+      transition={{ duration: 0.4 }}
+      className="liquid-glass rounded-2xl p-6"
     >
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
@@ -71,7 +71,7 @@ export default function SDKSection() {
         Embed Collat checkout into any website. One line of code, instant BTC-backed payments at your store.
       </p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-3">
         <div className="relative">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5">
