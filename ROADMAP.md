@@ -134,9 +134,9 @@ The practical approach:
 
 ## Future Ideas
 
-- **Collat Pay SDK** — embed Collat checkout into any website or app
-- **Recurring payments** — scheduled MUSD repayments from linked wallet
-- **Yield strategies** — deposit idle MUSD into Mezo yield protocols
+- **Collat Pay SDK** — embed Collat checkout into any website or app ✅ (SDK panel in dashboard)
+- **Recurring payments** — scheduled MUSD repayments from linked wallet ✅ (Recurring panel in dashboard)
+- **Yield strategies** — deposit idle MUSD into Mezo yield protocols ✅ (Yield panel in dashboard)
 - **Cross-chain BTC** — support BTC on other L2s as collateral
 - **Multi-collateral** — ETH, stablecoins as additional collateral types
 - **Collat DAO** — community governance of protocol parameters

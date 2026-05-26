@@ -14,6 +14,9 @@ import { isDeployed } from '../lib/contracts'
 import DepositPanel from '../components/DepositPanel'
 import CardPreview from '../components/CardPreview'
 import PositionTable from '../components/PositionTable'
+import SDKSection from '../components/SDKSection'
+import RecurringPayments from '../components/RecurringPayments'
+import YieldStrategies from '../components/YieldStrategies'
 
 export default function Dashboard() {
   const vaultData = useCollatData()
@@ -173,6 +176,15 @@ export default function Dashboard() {
               <p className="text-white/10 text-[10px] text-center mt-4 font-mono">Chain ID: 31611</p>
             </div>
           </motion.div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mt-6">
+          <SDKSection />
+          <RecurringPayments />
+        </div>
+
+        <div className="mt-4">
+          <YieldStrategies />
         </div>
       </div>
     </div>
