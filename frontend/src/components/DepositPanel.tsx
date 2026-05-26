@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { useAccount, useReadContract, useWriteContract } from 'wagmi'
-import { parseUnits, formatUnits } from 'viem'
+import { useAccount, useBalance, useReadContract, useWriteContract } from 'wagmi'
+import { parseUnits, formatUnits, formatEther } from 'viem'
 import { toast } from 'sonner'
-import { ArrowDown, Loader2 } from 'lucide-react'
+import { ArrowDown, Loader2, Wallet } from 'lucide-react'
 import {
   COLLAT_VAULT_ADDRESS,
   BTC_TOKEN_ADDRESS,
@@ -16,7 +16,12 @@ export default function DepositPanel() {
   const [amount, setAmount] = useState('')
   const [step, setStep] = useState<'idle' | 'approving' | 'depositing'>('idle')
 
-  const { data: btcBalance, refetch: refetchBalance } = useReadContract({
+  const { data: nativeBalance } = useBalance({
+    address,
+    query: { enabled: isConnected },
+  })
+
+  const { data: _btcTokenBalance, refetch: refetchBalance } = useReadContract({
     address: BTC_TOKEN_ADDRESS,
     abi: ERC20_ABI,
     functionName: 'balanceOf',
@@ -56,7 +61,6 @@ export default function DepositPanel() {
         args: [COLLAT_VAULT_ADDRESS, depositAmount],
       })
       toast.success('Approval submitted')
-      // Wait for receipt
       await new Promise((r) => setTimeout(r, 5000))
       refetchAllowance()
       setStep('idle')
@@ -99,29 +103,46 @@ export default function DepositPanel() {
 
   const btcDeposited = position ? (position as [bigint, bigint, bigint])[0] : 0n
   const musdDebt = position ? (position as [bigint, bigint, bigint])[1] : 0n
+  const hasNativeBtc = nativeBalance && nativeBalance.value > 0n
 
   return (
     <div className="liquid-glass rounded-2xl p-6">
       <h2 className="text-lg font-semibold tracking-tight mb-6">Deposit BTC</h2>
 
-      <div className="flex items-center justify-between mb-4 text-sm">
-        <span className="text-white/40">Wallet Balance</span>
-        <span className="text-white font-mono">
-          {btcBalance != null ? formatUnits(btcBalance as bigint, 8) : '0'} BTC
-        </span>
+      <div className="space-y-2 mb-4">
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-white/40 flex items-center gap-1.5">
+            <Wallet size={12} />
+            Wallet Balance
+          </span>
+          <span className={`font-mono ${hasNativeBtc ? 'text-emerald-400' : 'text-white/30'}`}>
+            {nativeBalance ? Number(formatEther(nativeBalance.value)).toFixed(6) : '0'} BTC
+          </span>
+        </div>
+        {!hasNativeBtc && (
+          <a
+            href="https://faucet.test.mezo.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/15 transition-colors text-xs text-amber-400"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+            No BTC in wallet. Get testnet BTC from the Mezo Faucet
+          </a>
+        )}
       </div>
 
       {btcDeposited > 0n && (
-        <>
-          <div className="flex items-center justify-between mb-1 text-sm">
+        <div className="mb-4 border-t border-white/[0.06] pt-4 space-y-2">
+          <div className="flex items-center justify-between text-sm">
             <span className="text-white/40">Deposited</span>
             <span className="text-red-400 font-mono">{formatUnits(btcDeposited, 8)} BTC</span>
           </div>
-          <div className="flex items-center justify-between mb-4 text-sm">
+          <div className="flex items-center justify-between text-sm">
             <span className="text-white/40">MUSD Debt</span>
             <span className="text-white/60 font-mono">{formatUnits(musdDebt, 18)}</span>
           </div>
-        </>
+        </div>
       )}
 
       <div className="liquid-glass rounded-xl flex items-center gap-2 px-4 py-3 mb-4">
@@ -157,21 +178,6 @@ export default function DepositPanel() {
           {step === 'depositing' ? 'Depositing...' : 'Deposit BTC'}
         </button>
       )}
-
-      {!isDeployed && (
-        <p className="text-amber-400/60 text-xs mt-3 text-center">
-          Contract not yet deployed to Mezo testnet
-        </p>
-      )}
-
-      <a
-        href="https://faucet.test.mezo.org"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="block mt-3 text-center text-xs text-red-500/60 hover:text-red-400 transition-colors"
-      >
-        Get testnet BTC from the Mezo Faucet →
-      </a>
     </div>
   )
 }
