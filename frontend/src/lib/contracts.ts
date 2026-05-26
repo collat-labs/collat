@@ -1,6 +1,5 @@
 export const COLLAT_VAULT_ADDRESS = '0xAEaD0Bef16bEcecc87fA559262e58c904eDF9ac6'
-export const PRICE_FEED_ADDRESS = '0x318Ecad2bA565778753918e287AAaA2e65E5b1Dd'
-export const BTC_TOKEN_ADDRESS = '0xc583b1aa2f68BE9176Ce17b36b6928c99091E3fd'
+export const PRICE_FEED_ADDRESS = '0xc583b1aa2f68BE9176Ce17b36b6928c99091E3fd'
 export const MUSD_ADDRESS = '0x118917a40FAF1CD7a13dB0Ef56C86De7973Ac503'
 
 export const isDeployed = true
@@ -8,7 +7,6 @@ export const isDeployed = true
 export const COLLAT_VAULT_ABI = [
   { type: 'function', name: 'totalBtcDeposited', inputs: [], outputs: [{ type: 'uint256' }], stateMutability: 'view' },
   { type: 'function', name: 'totalMusdBorrowed', inputs: [], outputs: [{ type: 'uint256' }], stateMutability: 'view' },
-  { type: 'function', name: 'btcToken', inputs: [], outputs: [{ type: 'address' }], stateMutability: 'view' },
   { type: 'function', name: 'musdToken', inputs: [], outputs: [{ type: 'address' }], stateMutability: 'view' },
   { type: 'function', name: 'priceFeed', inputs: [], outputs: [{ type: 'address' }], stateMutability: 'view' },
   { type: 'function', name: 'interestRateBps', inputs: [], outputs: [{ type: 'uint256' }], stateMutability: 'view' },
@@ -26,10 +24,10 @@ export const COLLAT_VAULT_ABI = [
     { type: 'uint256', name: 'musdBorrowed' },
     { type: 'uint256', name: 'lastInterestUpdate' },
   ], stateMutability: 'view' },
-  { type: 'function', name: 'depositCollateral', inputs: [{ type: 'uint256', name: 'amount' }], outputs: [], stateMutability: 'nonpayable' },
+  { type: 'function', name: 'depositCollateral', inputs: [], outputs: [], stateMutability: 'payable' },
+  { type: 'function', name: 'withdrawCollateral', inputs: [{ type: 'uint256', name: 'amount' }], outputs: [], stateMutability: 'nonpayable' },
   { type: 'function', name: 'borrow', inputs: [{ type: 'uint256', name: 'amount' }], outputs: [], stateMutability: 'nonpayable' },
   { type: 'function', name: 'repay', inputs: [{ type: 'uint256', name: 'amount' }], outputs: [], stateMutability: 'nonpayable' },
-  { type: 'function', name: 'withdrawCollateral', inputs: [{ type: 'uint256', name: 'amount' }], outputs: [], stateMutability: 'nonpayable' },
 ] as const
 
 export const MUSD_ABI = [

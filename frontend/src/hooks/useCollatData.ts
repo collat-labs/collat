@@ -20,7 +20,6 @@ export interface VaultData {
   minCollateral: bigint
   vaultAddress: string
   priceFeedAddress: string
-  btcTokenAddress: string
   musdAddress: string
   musdTotalSupply: bigint
   loading: boolean
@@ -36,10 +35,9 @@ const DEFAULTS: VaultData = {
   liquidationPenaltyBps: 500n,
   interestRateBps: 500n,
   feeRateBps: 50n,
-  minCollateral: 100000n,
+  minCollateral: 1_000_000_000_000n,
   vaultAddress: COLLAT_VAULT_ADDRESS,
   priceFeedAddress: '0x0000000000000000000000000000000000000000',
-  btcTokenAddress: '0x0000000000000000000000000000000000000000',
   musdAddress: MUSD_ADDRESS,
   musdTotalSupply: 0n,
   loading: false,
@@ -66,7 +64,7 @@ export function useCollatData(): VaultData {
       const client = createClient()
       const [
         totalBtcDeposited, totalMusdBorrowed, maxLtv, liqLtv, liqPenalty,
-        interest, fee, minCol, priceFeedAddr, btcAddr, musdAddr, musdSupply,
+        interest, fee, minCol, priceFeedAddr, musdAddr, musdSupply,
       ] = await Promise.all([
         client.readContract({ address: COLLAT_VAULT_ADDRESS, abi: COLLAT_VAULT_ABI, functionName: 'totalBtcDeposited' }),
         client.readContract({ address: COLLAT_VAULT_ADDRESS, abi: COLLAT_VAULT_ABI, functionName: 'totalMusdBorrowed' }),
@@ -77,7 +75,6 @@ export function useCollatData(): VaultData {
         client.readContract({ address: COLLAT_VAULT_ADDRESS, abi: COLLAT_VAULT_ABI, functionName: 'feeRateBps' }),
         client.readContract({ address: COLLAT_VAULT_ADDRESS, abi: COLLAT_VAULT_ABI, functionName: 'minCollateral' }),
         client.readContract({ address: COLLAT_VAULT_ADDRESS, abi: COLLAT_VAULT_ABI, functionName: 'priceFeed' }),
-        client.readContract({ address: COLLAT_VAULT_ADDRESS, abi: COLLAT_VAULT_ABI, functionName: 'btcToken' }),
         client.readContract({ address: COLLAT_VAULT_ADDRESS, abi: COLLAT_VAULT_ABI, functionName: 'musdToken' }),
         client.readContract({ address: MUSD_ADDRESS, abi: MUSD_ABI, functionName: 'totalSupply' }),
       ])
@@ -92,7 +89,6 @@ export function useCollatData(): VaultData {
         minCollateral: minCol as bigint,
         vaultAddress: COLLAT_VAULT_ADDRESS,
         priceFeedAddress: priceFeedAddr as string,
-        btcTokenAddress: btcAddr as string,
         musdAddress: musdAddr as string,
         musdTotalSupply: musdSupply as bigint,
         loading: false,
@@ -110,10 +106,10 @@ export function useCollatData(): VaultData {
 }
 
 export function formatBtc(amount: bigint): string {
-  return (Number(amount) / 1e8).toFixed(4)
+  return (Number(amount) / 1e18).toFixed(6)
 }
 export function formatMusd(amount: bigint): string {
-  return (Number(amount) / 1e18).toLocaleString(undefined, { maximumFractionDigits: 0 })
+  return (Number(amount) / 1e6).toLocaleString(undefined, { maximumFractionDigits: 0 })
 }
 export function formatBps(amount: bigint): string {
   return (Number(amount) / 100).toFixed(2)

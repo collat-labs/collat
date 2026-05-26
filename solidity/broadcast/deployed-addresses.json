@@ -1,9 +1,5 @@
 {
-  "priceFeed": "0x318Ecad2bA565778753918e287AAaA2e65E5b1Dd",
-  "btcToken": "0xc583b1aa2f68BE9176Ce17b36b6928c99091E3fd",
+  "priceFeed": "0xc583b1aa2f68BE9176Ce17b36b6928c99091E3fd",
   "vault": "0xAEaD0Bef16bEcecc87fA559262e58c904eDF9ac6",
-  "musd": "0x118917a40FAF1CD7a13dB0Ef56C86De7973Ac503",
-  "network": "matsnet",
-  "chainId": 31611,
-  "deployer": "0x41003D8a06072bD14Ae1816E1a79294D15F48eCA"
+  "musd": "0x118917a40FAF1CD7a13dB0Ef56C86De7973Ac503"
 }

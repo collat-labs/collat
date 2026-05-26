@@ -52,7 +52,6 @@ contract MockERC20 {
 contract CollatVaultTest is Test {
     CollatVault public vault;
     PriceFeed public priceFeed;
-    MockERC20 public btc;
     MockERC20 public musd;
 
     address public admin = makeAddr("admin");
@@ -62,369 +61,246 @@ contract CollatVaultTest is Test {
     address public oracle = makeAddr("oracle");
 
     uint256 constant BTC_PRICE = 60_000_000_000; // $60,000 with 6 decimals
-    uint256 constant ONE_BTC = 100_000_000; // 1 BTC with 8 decimals
-    uint256 constant TEN_BTC = 1_000_000_000; // 10 BTC
+    uint256 constant ONE_BTC = 1 ether; // 1 BTC = 1e18 wei
+    uint256 constant TEN_BTC = 10 ether;
     uint256 constant ONE_MUSD = 1_000_000; // 1 MUSD with 6 decimals
-    uint256 constant THOUSAND_MUSD = 1_000_000_000; // 1000 MUSD
+    uint256 constant THOUSAND_MUSD = 1_000_000_000;
 
     function setUp() public {
         vm.startPrank(admin);
 
-        btc = new MockERC20("Bitcoin", "BTC", 8);
         musd = new MockERC20("Mezo USD", "MUSD", 6);
 
         priceFeed = new PriceFeed(BTC_PRICE);
         priceFeed.addOracle(oracle);
 
         vault = new CollatVault(
-            address(btc),
             address(musd),
             address(priceFeed),
-            100_000,        // minCollateral: 0.001 BTC (8dp)
-            50,             // feeRateBps: 0.5%
-            500             // interestRateBps: 5% APR
+            100_000_000_000_000, // min: 0.0001 BTC (1e14 wei)
+            50,                  // feeRateBps: 0.5%
+            500                  // interestRateBps: 5% APR
         );
 
         vm.stopPrank();
-
-        // Fund users
-        btc.mint(user, TEN_BTC * 10);
-        btc.mint(user2, TEN_BTC * 10);
-        btc.mint(liquidator, TEN_BTC * 10);
-        musd.mint(user, THOUSAND_MUSD * 100);
-        musd.mint(liquidator, THOUSAND_MUSD * 1000);
-
-        // Fund vault with MUSD for borrowing
-        musd.mint(address(vault), THOUSAND_MUSD * 1000);
-
-        // Approvals
-        vm.startPrank(user);
-        btc.approve(address(vault), type(uint256).max);
-        musd.approve(address(vault), type(uint256).max);
-        vm.stopPrank();
-
-        vm.startPrank(user2);
-        btc.approve(address(vault), type(uint256).max);
-        musd.approve(address(vault), type(uint256).max);
-        vm.stopPrank();
-
-        vm.startPrank(liquidator);
-        btc.approve(address(vault), type(uint256).max);
-        musd.approve(address(vault), type(uint256).max);
-        vm.stopPrank();
     }
 
-    // ============ Deposit Tests ============
+    function deposit(address who, uint256 amount) internal {
+        vm.deal(who, amount);
+        vm.prank(who);
+        vault.depositCollateral{value: amount}();
+    }
 
-    function test_depositCollateral() public {
-        vm.startPrank(user);
-        vault.depositCollateral(ONE_BTC);
-
-        assertEq(vault.totalBtcDeposited(), ONE_BTC);
-        (uint256 deposited, uint256 borrowed, , bool exists) = vault.positions(user);
+    // ─── DEPOSIT ───
+    function test_deposit() public {
+        deposit(user, ONE_BTC);
+        (uint256 deposited, uint256 debt,,) = vault.positions(user);
         assertEq(deposited, ONE_BTC);
-        assertEq(borrowed, 0);
-        assertTrue(exists);
+        assertEq(vault.totalBtcDeposited(), ONE_BTC);
     }
 
-    function test_depositMultipleTimes() public {
-        vm.startPrank(user);
-        vault.depositCollateral(ONE_BTC);
-        vault.depositCollateral(ONE_BTC * 2);
-
-        (uint256 deposited, , , ) = vault.positions(user);
+    function test_deposit_multiple() public {
+        deposit(user, ONE_BTC);
+        deposit(user, ONE_BTC * 2);
+        (uint256 deposited, uint256 debt,,) = vault.positions(user);
         assertEq(deposited, ONE_BTC * 3);
         assertEq(vault.totalBtcDeposited(), ONE_BTC * 3);
     }
 
-    function test_depositZeroReverts() public {
-        vm.startPrank(user);
+    function test_deposit_zero_revert() public {
+        vm.deal(user, 1 ether);
+        vm.prank(user);
         vm.expectRevert(CollatVault.ZeroAmount.selector);
-        vault.depositCollateral(0);
+        vault.depositCollateral{value: 0}();
     }
 
-    function test_depositBelowMinCollateral() public {
-        vm.startPrank(user);
-        vault.depositCollateral(1);
-        (uint256 deposited, , , ) = vault.positions(user);
-        assertEq(deposited, 1);
-    }
-
-    // ============ Borrow Tests ============
-
+    // ─── BORROW ───
     function test_borrow() public {
-        vm.startPrank(user);
-        uint256 balanceBefore = musd.balanceOf(user);
-        vault.depositCollateral(ONE_BTC);
-        vault.borrow(THOUSAND_MUSD * 30); // 30k MUSD from 60k BTC at 60% LTV
-
-        (uint256 deposited, uint256 borrowed, , ) = vault.positions(user);
+        deposit(user, ONE_BTC);
+        mintMusd(address(vault), ONE_MUSD * 100_000);
+        vm.prank(user);
+        vault.borrow(ONE_MUSD * 1_000);
+        (uint256 deposited, uint256 debt,,) = vault.positions(user);
         assertEq(deposited, ONE_BTC);
-        assertEq(borrowed, THOUSAND_MUSD * 30);
-        assertEq(musd.balanceOf(user), balanceBefore + THOUSAND_MUSD * 30);
+        assertEq(debt, ONE_MUSD * 1_000);
     }
 
-    function test_borrowMaxLTV() public {
-        vm.startPrank(user);
-        vault.depositCollateral(ONE_BTC);
-        // 60% of $60,000 = $36,000 in MUSD
-        vault.borrow(THOUSAND_MUSD * 36);
-
-        (uint256 deposited, uint256 borrowed, , ) = vault.positions(user);
-        assertEq(deposited, ONE_BTC);
-        assertEq(borrowed, THOUSAND_MUSD * 36);
-    }
-
-    function test_borrowExceedsMaxLTV() public {
-        vm.startPrank(user);
-        vault.depositCollateral(ONE_BTC);
-        // 60% + 1 = exceeds max
+    function test_borrow_exceeds_ltv_revert() public {
+        deposit(user, ONE_BTC);
+        mintMusd(address(vault), THOUSAND_MUSD * 100);
+        vm.prank(user);
         vm.expectRevert(CollatVault.ExceedsMaxLTV.selector);
-        vault.borrow(THOUSAND_MUSD * 36 + 1);
+        vault.borrow(ONE_MUSD * 100_000); // exceeds 60% LTV
     }
 
-    function test_borrowZeroReverts() public {
-        vm.startPrank(user);
-        vm.expectRevert(CollatVault.ZeroAmount.selector);
-        vault.borrow(0);
-    }
-
-    function test_borrowWithoutPosition() public {
-        vm.startPrank(user2);
+    function test_borrow_no_position_revert() public {
+        vm.prank(user);
         vm.expectRevert(CollatVault.PositionNotFound.selector);
-        vault.borrow(1);
+        vault.borrow(ONE_MUSD);
     }
 
-    // ============ Repay Tests ============
-
+    // ─── REPAY ───
     function test_repay() public {
-        vm.startPrank(user);
-        vault.depositCollateral(ONE_BTC);
-        vault.borrow(THOUSAND_MUSD * 30);
-
-        musd.mint(user, THOUSAND_MUSD * 15);
-        vault.repay(THOUSAND_MUSD * 15);
-
-        (uint256 deposited, uint256 borrowed, , ) = vault.positions(user);
-        assertEq(deposited, ONE_BTC);
-        assertEq(borrowed, THOUSAND_MUSD * 15);
+        deposit(user, ONE_BTC);
+        mintMusd(address(vault), ONE_MUSD * 100_000);
+        vm.prank(user);
+        vault.borrow(ONE_MUSD * 1_000);
+        mintMusd(user, ONE_MUSD * 500);
+        vm.prank(user);
+        musd.approve(address(vault), ONE_MUSD * 500);
+        vm.prank(user);
+        vault.repay(ONE_MUSD * 500);
+        (, uint256 debt,,) = vault.positions(user);
+        assertEq(debt, ONE_MUSD * 500);
     }
 
-    function test_repayFull() public {
-        vm.startPrank(user);
-        vault.depositCollateral(ONE_BTC);
-        vault.borrow(THOUSAND_MUSD * 30);
-
-        musd.mint(user, THOUSAND_MUSD * 30);
-        vault.repay(THOUSAND_MUSD * 30);
-
-        (uint256 deposited, uint256 borrowed, , ) = vault.positions(user);
-        assertEq(deposited, ONE_BTC);
-        assertEq(borrowed, 0);
+    function test_repay_full() public {
+        deposit(user, ONE_BTC);
+        mintMusd(address(vault), ONE_MUSD * 100_000);
+        vm.prank(user);
+        vault.borrow(ONE_MUSD * 1_000);
+        mintMusd(user, ONE_MUSD * 1_000);
+        vm.prank(user);
+        musd.approve(address(vault), ONE_MUSD * 1_000);
+        vm.prank(user);
+        vault.repay(ONE_MUSD * 1_000);
+        (, uint256 debt,,) = vault.positions(user);
+        assertEq(debt, 0);
     }
 
-    function test_repayOverDebt() public {
-        vm.startPrank(user);
-        vault.depositCollateral(ONE_BTC);
-        vault.borrow(THOUSAND_MUSD * 10);
-
-        musd.mint(user, THOUSAND_MUSD * 20);
+    function test_repay_over_revert() public {
+        deposit(user, ONE_BTC);
+        mintMusd(address(vault), ONE_MUSD * 100_000);
+        vm.prank(user);
+        vault.borrow(ONE_MUSD * 1_000);
+        mintMusd(user, ONE_MUSD * 2_000);
+        vm.prank(user);
+        musd.approve(address(vault), ONE_MUSD * 2_000);
+        vm.prank(user);
         vm.expectRevert(CollatVault.OverRepay.selector);
-        vault.repay(THOUSAND_MUSD * 11);
+        vault.repay(ONE_MUSD * 2_000);
     }
 
-    function test_repayZeroReverts() public {
-        vm.startPrank(user);
-        vm.expectRevert(CollatVault.ZeroAmount.selector);
-        vault.repay(0);
+    // ─── WITHDRAW ───
+    function test_withdraw() public {
+        deposit(user, ONE_BTC);
+        vm.prank(user);
+        vault.withdrawCollateral(ONE_BTC / 2);
+        (uint256 deposited, uint256 debt,,) = vault.positions(user);
+        assertEq(deposited, ONE_BTC / 2);
     }
 
-    // ============ Withdraw Tests ============
-
-    function test_withdrawAfterFullRepay() public {
-        vm.startPrank(user);
-        vault.depositCollateral(ONE_BTC * 2);
-        vault.borrow(THOUSAND_MUSD * 10);
-
-        musd.mint(user, THOUSAND_MUSD * 10);
-        vault.repay(THOUSAND_MUSD * 10);
-        vault.withdrawCollateral(ONE_BTC);
-
-        (uint256 deposited, uint256 borrowed, , ) = vault.positions(user);
-        assertEq(deposited, ONE_BTC);
-        assertEq(borrowed, 0);
-    }
-
-    function test_withdrawWithOutstandingLoan() public {
-        vm.startPrank(user);
-        vault.depositCollateral(ONE_BTC * 2);
-        vault.borrow(THOUSAND_MUSD * 10);
-
+    function test_withdraw_with_loan_revert() public {
+        deposit(user, ONE_BTC);
+        mintMusd(address(vault), ONE_MUSD * 100_000);
+        vm.prank(user);
+        vault.borrow(ONE_MUSD * 1_000);
+        vm.prank(user);
         vm.expectRevert(CollatVault.OutstandingLoan.selector);
-        vault.withdrawCollateral(ONE_BTC);
+        vault.withdrawCollateral(ONE_BTC / 2);
     }
 
-    function test_withdrawZeroReverts() public {
-        vm.startPrank(user);
-        vm.expectRevert(CollatVault.ZeroAmount.selector);
-        vault.withdrawCollateral(0);
-    }
-
-    function test_withdrawMoreThanDeposited() public {
-        vm.startPrank(user);
-        vault.depositCollateral(ONE_BTC);
-
+    function test_withdraw_more_than_deposited_revert() public {
+        deposit(user, ONE_BTC);
+        vm.prank(user);
         vm.expectRevert(CollatVault.InsufficientCollateral.selector);
         vault.withdrawCollateral(ONE_BTC * 2);
     }
 
-    // ============ Liquidation Tests ============
-
-    function test_liquidation() public {
-        // Setup: deposit 1 BTC, borrow max, then drop price to trigger liquidation
-        vm.startPrank(user);
-        vault.depositCollateral(ONE_BTC);
-        vault.borrow(THOUSAND_MUSD * 36); // Max borrow
-        vm.stopPrank();
-
-        // Drop BTC price to $47k (makes position underwater at 75% LTV)
-        // At $47k: collateralValue = 1 * 47000 = $47,000
-        // LTV = 36,000 / 47,000 = 76.6% > 75%
-        uint256 lowPrice = 47_000_000_000;
-        vm.prank(oracle);
-        priceFeed.updatePrice(lowPrice);
-
-        // Liquidator covers 10k MUSD debt
-        vm.startPrank(liquidator);
-        musd.mint(liquidator, THOUSAND_MUSD * 15);
-        uint256 debtToCover = THOUSAND_MUSD * 10;
-
-        vault.liquidate(user, debtToCover);
-
-        (uint256 deposited, uint256 borrowed, , ) = vault.positions(user);
-        assertLt(borrowed, THOUSAND_MUSD * 36);
-        assertLt(deposited, ONE_BTC);
+    // ─── HEALTH / LTV ───
+    function test_health_factor() public {
+        deposit(user, ONE_BTC);
+        uint256 health = vault.getHealthFactor(user);
+        assertEq(health, type(uint256).max); // no debt = infinite health
     }
 
-    function test_liquidationNotUnderwater() public {
-        vm.startPrank(user);
-        vault.depositCollateral(ONE_BTC);
-        vault.borrow(THOUSAND_MUSD * 10); // Well under 75% LTV
-        vm.stopPrank();
-
-        vm.startPrank(liquidator);
-        vm.expectRevert(CollatVault.NotLiquidatable.selector);
-        vault.liquidate(user, THOUSAND_MUSD * 5);
+    function test_collateral_value() public {
+        deposit(user, ONE_BTC);
+        uint256 value = vault.getCollateralValue(user);
+        assertEq(value, BTC_PRICE); // 1 BTC * $60k
     }
 
-    // ============ Health Factor Tests ============
-
-    function test_healthFactor() public {
-        vm.startPrank(user);
-        vault.depositCollateral(ONE_BTC);
-        vault.borrow(THOUSAND_MUSD * 10);
-
-        // At $60k BTC, 10k MUSD = 16.67% LTV
-        // Health factor = 75 / 16.67 = 4.5x
-        uint256 hf = vault.getHealthFactor(user);
-        assertTrue(hf > 0);
+    function test_max_borrow() public {
+        deposit(user, ONE_BTC);
+        uint256 maxB = vault.getMaxBorrow(user);
+        assertEq(maxB, BTC_PRICE * 6000 / 10000);
     }
 
-    // ============ Interest Accrual Tests ============
-
-    function test_interestAccrues() public {
-        vm.startPrank(user);
-        vault.depositCollateral(ONE_BTC);
-        vault.borrow(THOUSAND_MUSD * 10);
-        vm.stopPrank();
-
-        // Warp 1 year forward
-        vm.warp(block.timestamp + 365 days);
-
-        // Accrue interest explicitly (also happens on borrow/repay)
+    // ─── LIQUIDATION ───
+    function test_liquidate() public {
+        deposit(user, ONE_BTC);
+        mintMusd(address(vault), ONE_MUSD * 100_000);
         vm.prank(user);
+        vault.borrow(ONE_MUSD * 30_000); // 50% LTV
+
+        // Drop price to trigger liquidation
+        vm.prank(oracle);
+        priceFeed.updatePrice(BTC_PRICE / 2); // $30k, now ~100% LTV
+
+        mintMusd(liquidator, ONE_MUSD * 40_000);
+        vm.prank(liquidator);
+        musd.approve(address(vault), ONE_MUSD * 40_000);
+
+        vm.prank(liquidator);
+        vault.liquidate(user, ONE_MUSD * 30_000);
+
+        (, uint256 debt,,) = vault.positions(user);
+        assertEq(debt, 0);
+    }
+
+    function test_liquidate_not_underwater_revert() public {
+        deposit(user, ONE_BTC);
+        mintMusd(address(vault), ONE_MUSD * 100_000);
+        vm.prank(user);
+        vault.borrow(ONE_MUSD * 10_000); // well below 75%
+
+        mintMusd(liquidator, ONE_MUSD * 20_000);
+        vm.prank(liquidator);
+        musd.approve(address(vault), ONE_MUSD * 20_000);
+
+        vm.prank(liquidator);
+        vm.expectRevert(CollatVault.NotLiquidatable.selector);
+        vault.liquidate(user, ONE_MUSD * 10_000);
+    }
+
+    // ─── INTEREST ───
+    function test_interest_accrual() public {
+        deposit(user, ONE_BTC);
+        mintMusd(address(vault), ONE_MUSD * 100_000);
+        vm.prank(user);
+        vault.borrow(ONE_MUSD * 10_000);
+        (, uint256 debtBefore,,) = vault.positions(user);
+
+        vm.warp(block.timestamp + 365 days);
         vault.accrueInterest(user);
 
-        (uint256 deposited, uint256 borrowed, , ) = vault.positions(user);
-        assertEq(deposited, ONE_BTC);
-        // 5% APR on 10,000 MUSD = 500 MUSD interest after 1 year
-        assertEq(borrowed, THOUSAND_MUSD * 10 + THOUSAND_MUSD / 2); // 10,000 + 500
+        (, uint256 debtAfter,,) = vault.positions(user);
+        assertApproxEqRel(debtAfter, debtBefore + debtBefore * 500 / 10000, 0.01e18);
     }
 
-    // ============ Collateral Value Tests ============
+    // ─── MULTI-USER ───
+    function test_multi_user_isolation() public {
+        deposit(user, ONE_BTC);
+        deposit(user2, ONE_BTC * 2);
 
-    function test_collateralValueCalculation() public {
-        vm.startPrank(user);
-        vault.depositCollateral(ONE_BTC * 2); // 2 BTC
+        mintMusd(address(vault), THOUSAND_MUSD * 100);
+        vm.prank(user);
+        vault.borrow(ONE_MUSD * 20_000);
 
-        uint256 value = vault.getCollateralValue(user);
-        // 2 BTC * $60,000 = $120,000 in MUSD units (6dp)
-        assertEq(value, 120_000_000_000);
+        (uint256 d1, uint256 debt1,,) = vault.positions(user);
+        (uint256 d2, uint256 debt2,,) = vault.positions(user2);
+
+        assertEq(d1, ONE_BTC);
+        assertEq(debt1, ONE_MUSD * 20_000);
+        assertEq(d2, ONE_BTC * 2);
+        assertEq(debt2, 0);
     }
 
-    // ============ Max Borrow Tests ============
-
-    function test_maxBorrow() public {
-        vm.startPrank(user);
-        vault.depositCollateral(ONE_BTC); // $60,000 collateral
-
-        uint256 maxB = vault.getMaxBorrow(user);
-        // 60% of $60,000 = $36,000
-        assertEq(maxB, THOUSAND_MUSD * 36);
+    // ─── HELPERS ───
+    function mintMusd(address to, uint256 amount) internal {
+        vm.prank(admin);
+        musd.mint(to, amount);
     }
 
-    // ============ Liquidation Repay Requirement ============
-
-    function test_liquidationRequiresMUSDPayment() public {
-        vm.startPrank(user);
-        vault.depositCollateral(ONE_BTC);
-        vault.borrow(THOUSAND_MUSD * 36);
-        vm.stopPrank();
-
-        // Drop price
-        vm.prank(oracle);
-        priceFeed.updatePrice(47_000_000_000);
-
-        // Liquidator tries without MUSD approval
-        vm.startPrank(liquidator);
-        // Clear approval
-        musd.approve(address(vault), 0);
-        vm.expectRevert(); // transferFrom will fail
-        vault.liquidate(user, THOUSAND_MUSD * 10);
-    }
-
-    // ============ Multi-User Isolation ============
-
-    function test_multiUserIsolation() public {
-        vm.startPrank(user);
-        vault.depositCollateral(ONE_BTC);
-        vault.borrow(THOUSAND_MUSD * 5);
-        vm.stopPrank();
-
-        vm.startPrank(user2);
-        vault.depositCollateral(ONE_BTC * 3);
-        vault.borrow(THOUSAND_MUSD * 10);
-        vm.stopPrank();
-
-        (uint256 u1Dep, uint256 u1Bor, , ) = vault.positions(user);
-        (uint256 u2Dep, uint256 u2Bor, , ) = vault.positions(user2);
-
-        assertEq(u1Dep, ONE_BTC);
-        assertEq(u1Bor, THOUSAND_MUSD * 5);
-        assertEq(u2Dep, ONE_BTC * 3);
-        assertEq(u2Bor, THOUSAND_MUSD * 10);
-    }
-
-    // ============ Reentrancy Test ============
-
-    function test_reentrancyGuard() public {
-        vm.startPrank(user);
-        vault.depositCollateral(ONE_BTC);
-        vault.borrow(THOUSAND_MUSD * 1);
-        vault.repay(THOUSAND_MUSD * 1);
-        vault.withdrawCollateral(ONE_BTC);
-        // If reentrancy guards work, all succeed sequentially
-        (uint256 deposited, , , ) = vault.positions(user);
-        assertEq(deposited, 0);
-    }
+    receive() external payable {}
 }

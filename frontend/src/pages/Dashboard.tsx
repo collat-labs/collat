@@ -27,7 +27,7 @@ export default function Dashboard() {
 
   const borrowedMusd = formatMusd(vaultData.totalMusdBorrowed)
   const collateralRatio = vaultData.totalBtcDeposited > 0n && vaultData.totalMusdBorrowed > 0n
-    ? Math.round((Number(vaultData.totalBtcDeposited) * 60000) / (Number(vaultData.totalMusdBorrowed) / 1e18) * 100)
+    ? Math.round((Number(vaultData.totalBtcDeposited) * 60000) / (Number(vaultData.totalMusdBorrowed) / 1e6) * 100)
     : 0
 
   const stats = [
@@ -40,7 +40,6 @@ export default function Dashboard() {
   const addresses = [
     { label: 'CollatVault', addr: vaultData.vaultAddress },
     { label: 'PriceFeed', addr: vaultData.priceFeedAddress },
-    { label: 'BTC Token', addr: vaultData.btcTokenAddress },
     { label: 'MUSD', addr: vaultData.musdAddress },
   ]
 

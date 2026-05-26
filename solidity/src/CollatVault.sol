@@ -7,7 +7,6 @@ import {IERC20} from "./interfaces/IERC20.sol";
 import {PriceFeed} from "./PriceFeed.sol";
 
 contract CollatVault is Ownable, ReentrancyGuard {
-    IERC20 public btcToken;
     IERC20 public musdToken;
     PriceFeed public priceFeed;
 
@@ -44,7 +43,7 @@ contract CollatVault is Ownable, ReentrancyGuard {
         uint256 collateralSeized
     );
     event InterestAccrued(address indexed owner, uint256 interestAmount);
-    event VaultInitialized(address btcToken, address musdToken, address priceFeed);
+    event VaultInitialized(address musdToken, address priceFeed);
     event VaultConfigUpdated(uint256 minCollateral, uint256 feeRateBps, uint256 interestRateBps);
     event CardCreated(address indexed owner, bytes32 cardId, uint256 limit);
 
@@ -54,35 +53,29 @@ contract CollatVault is Ownable, ReentrancyGuard {
     error ExceedsMaxLTV();
     error OverRepay();
     error NotLiquidatable();
-    error CollateralRemaining();
     error PositionNotFound();
     error TransferFailed();
-    error InsufficientAllowance();
     error StalePrice();
-    error CardLimitExceeded();
 
     constructor(
-        address _btcToken,
         address _musdToken,
         address _priceFeed,
         uint256 _minCollateral,
         uint256 _feeRateBps,
         uint256 _interestRateBps
     ) Ownable(msg.sender) {
-        require(_btcToken != address(0), "Zero BTC token");
         require(_musdToken != address(0), "Zero MUSD token");
         require(_priceFeed != address(0), "Zero price feed");
         require(_feeRateBps <= 500, "Fee rate max 5%");
         require(_interestRateBps <= 2000, "Interest rate max 20%");
 
-        btcToken = IERC20(_btcToken);
         musdToken = IERC20(_musdToken);
         priceFeed = PriceFeed(_priceFeed);
         minCollateral = _minCollateral;
         feeRateBps = _feeRateBps;
         interestRateBps = _interestRateBps;
 
-        emit VaultInitialized(_btcToken, _musdToken, _priceFeed);
+        emit VaultInitialized(_musdToken, _priceFeed);
     }
 
     function updateConfig(
@@ -118,21 +111,18 @@ contract CollatVault is Ownable, ReentrancyGuard {
         }
     }
 
-    function depositCollateral(uint256 amount) external nonReentrant {
-        if (amount == 0) revert ZeroAmount();
-
-        bool ok = btcToken.transferFrom(msg.sender, address(this), amount);
-        if (!ok) revert TransferFailed();
+    function depositCollateral() external payable nonReentrant {
+        if (msg.value == 0) revert ZeroAmount();
 
         Position storage pos = positions[msg.sender];
         if (!pos.exists) {
             pos.exists = true;
             pos.lastAccruedAt = block.timestamp;
         }
-        pos.btcDeposited += amount;
-        totalBtcDeposited += amount;
+        pos.btcDeposited += msg.value;
+        totalBtcDeposited += msg.value;
 
-        emit CollateralDeposited(msg.sender, amount, pos.btcDeposited);
+        emit CollateralDeposited(msg.sender, msg.value, pos.btcDeposited);
     }
 
     function withdrawCollateral(uint256 amount) external nonReentrant {
@@ -148,7 +138,7 @@ contract CollatVault is Ownable, ReentrancyGuard {
         pos.btcDeposited -= amount;
         totalBtcDeposited -= amount;
 
-        bool ok = btcToken.transfer(msg.sender, amount);
+        (bool ok,) = payable(msg.sender).call{value: amount}("");
         if (!ok) revert TransferFailed();
 
         emit CollateralWithdrawn(msg.sender, amount, pos.btcDeposited);
@@ -159,7 +149,7 @@ contract CollatVault is Ownable, ReentrancyGuard {
         if (!pos.exists || pos.btcDeposited == 0) return 0;
 
         uint256 btcPrice = priceFeed.price();
-        return pos.btcDeposited * btcPrice / 1e8;
+        return pos.btcDeposited * btcPrice / 1e18;
     }
 
     function getMaxBorrow(address owner) public view returns (uint256) {
@@ -242,7 +232,6 @@ contract CollatVault is Ownable, ReentrancyGuard {
 
         if (collateralToSeize > pos.btcDeposited) {
             collateralToSeize = pos.btcDeposited;
-            penalty = collateralToSeize > debtToCover ? collateralToSeize - debtToCover : 0;
         }
 
         bool musdOk = musdToken.transferFrom(msg.sender, address(this), debtToCover);
@@ -253,7 +242,7 @@ contract CollatVault is Ownable, ReentrancyGuard {
         totalBtcDeposited -= collateralToSeize;
         totalMusdBorrowed -= debtToCover;
 
-        bool btcOk = btcToken.transfer(msg.sender, collateralToSeize);
+        (bool btcOk,) = payable(msg.sender).call{value: collateralToSeize}("");
         if (!btcOk) revert TransferFailed();
 
         emit Liquidated(owner, msg.sender, debtToCover, collateralToSeize);
@@ -263,5 +252,19 @@ contract CollatVault is Ownable, ReentrancyGuard {
         uint256 ltv = getCurrentLtv(owner);
         if (ltv == 0) return type(uint256).max;
         return LIQUIDATION_LTV_BPS * RAY / ltv;
+    }
+
+    receive() external payable {
+        if (msg.value == 0) return;
+
+        Position storage pos = positions[msg.sender];
+        if (!pos.exists) {
+            pos.exists = true;
+            pos.lastAccruedAt = block.timestamp;
+        }
+        pos.btcDeposited += msg.value;
+        totalBtcDeposited += msg.value;
+
+        emit CollateralDeposited(msg.sender, msg.value, pos.btcDeposited);
     }
 }
